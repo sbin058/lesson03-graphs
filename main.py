@@ -50,4 +50,32 @@ else:
 
 st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
 
-# ── 앞으로 그래프 2, 3, 4, 5가 이 아래에 추가됩니다 ──────────
+# ── 그래프 2. 일관객 합계 상위 5편 비교 ──────────────────────
+st.header("2. 일관객 합계 상위 5편의 흥행 곡선 비교")
+
+# 영화별로 이 기간 일관객을 모두 더해서, 합계가 가장 큰 5편을 고릅니다.
+top5_names = (
+    df.groupby("영화명")["일관객"].sum().sort_values(ascending=False).head(5).index
+)
+top5_df = df[df["영화명"].isin(top5_names)].sort_values("날짜")
+
+if HAS_PLOTLY:
+    fig2 = px.line(
+        top5_df,
+        x="날짜",
+        y="일관객",
+        color="영화명",
+        markers=True,
+    )
+    fig2.update_traces(
+        hovertemplate="날짜 %{x|%Y-%m-%d}<br>관객 %{y:,}명<extra>%{fullData.name}</extra>"
+    )
+    fig2.update_layout(legend_title_text="영화명 (범례를 눌러 켜고 끌 수 있어요)")
+    st.plotly_chart(fig2, use_container_width=True)
+else:
+    pivot = top5_df.pivot_table(index="날짜", columns="영화명", values="일관객")
+    st.line_chart(pivot)
+
+st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
+
+# ── 앞으로 그래프 3, 4, 5가 이 아래에 추가됩니다 ──────────
